@@ -1,48 +1,19 @@
 import React, { useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useFormAction, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { createUserAsync } from "./userSlice";
+import { useForm } from "react-hook-form";
 
 export default function Add() {
-  const [people, setPeople] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
-  const [error, setError] = useState({});
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
   const nav = useNavigate();
-
-  const onChangeEvent = (e) => {
-    setPeople({ ...people, [e.target.name]: e.target.value });
-  };
-
-  const createUser = async (e) => {
-    e.preventDefault();
-
-    const errors = {};
-
-    if (!people.username.trim()) {
-      errors.username = "username required !!!";
-    }
-    if (!people.email.trim()) {
-      errors.email = "email required !!!";
-    }
-    if (!people.password.trim()) {
-      errors.password = "password required !!!";
-    }
-    setError(errors);
-    if (Object.keys(errors).length === 0) {
-      try {
-        await fetch("http://localhost:8080/api/user", {
-          method: "POST",
-          body: JSON.stringify(people),
-          headers: { "content-type": "application/json" },
-        });
-        nav("/");
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
+  const dispatch = useDispatch();
 
   return (
     <section>
@@ -51,7 +22,13 @@ export default function Add() {
           <h2 className="text-center text-2xl font-bold leading-tight text-black">
             Add Users Here
           </h2>
-          <form className="mt-8" onSubmit={(e) => createUser(e)}>
+          <form
+            className="mt-8"
+            onSubmit={handleSubmit((data) => {
+              dispatch(createUserAsync(data));
+              nav("/");
+            })}
+          >
             <div className="space-y-5">
               <div>
                 <label
@@ -67,13 +44,13 @@ export default function Add() {
                     type="text"
                     placeholder="username"
                     id="username"
-                    value={people.username}
-                    name="username"
-                    onChange={onChangeEvent}
+                    {...register("username", {
+                      required: "username required !!!",
+                    })}
                   ></input>
-                  {error.username && (
+                  {errors.username && (
                     <p className="text-red-500 mt-2 text-sm">
-                      {error.username}
+                      {errors.username.message}
                     </p>
                   )}
                 </div>
@@ -93,12 +70,14 @@ export default function Add() {
                     type="email"
                     placeholder="email"
                     id="email"
-                    name="email"
-                    value={people.email}
-                    onChange={onChangeEvent}
+                    {...register("email", {
+                      required: "email required !!!",
+                    })}
                   ></input>
-                  {error.email && (
-                    <p className="text-red-500 mt-2 text-sm">{error.email}</p>
+                  {errors.email && (
+                    <p className="text-red-500 mt-2 text-sm">
+                      {errors.email.message}
+                    </p>
                   )}
                 </div>
               </div>
@@ -119,13 +98,13 @@ export default function Add() {
                     type="password"
                     placeholder="Password"
                     id="password"
-                    name="password"
-                    value={people.password}
-                    onChange={onChangeEvent}
+                    {...register("password", {
+                      required: "password required !!!",
+                    })}
                   ></input>
-                  {error.password && (
+                  {errors.password && (
                     <p className="text-red-500 mt-2 text-sm">
-                      {error.password}
+                      {errors.password.message}
                     </p>
                   )}
                 </div>

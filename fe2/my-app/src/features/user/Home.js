@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllUserAsync, selectUser } from "./userSlice";
 
 export default function Home() {
-  const [people, setPeople] = useState([]);
+  // const [people, setPeople] = useState([]);
+  const dispatch = useDispatch();
+  const users = useSelector(selectUser);
 
   useEffect(() => {
-    getAllPeople();
+    dispatch(getAllUserAsync());
+    // getAllPeople();
   }, []);
 
-  const getAllPeople = async () => {
-    try {
-      const data = await fetch("http://localhost:8080/api/user");
-      const response = await data.json();
-      setPeople(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const getAllPeople = async () => {
+  //   try {
+  //     const data = await fetch("http://localhost:8080/api/user");
+  //     const response = await data.json();
+  //     setPeople(response);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const handleDeleteUser = async (_id) => {
     try {
@@ -93,7 +98,7 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {people.map((person) => (
+                    {users.map((person) => (
                       <tr key={person._id}>
                         <td className="whitespace-nowrap px-4 py-4">
                           <div className="flex items-center">

@@ -1,21 +1,56 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchCount } from "./userAPI";
+import {
+  createUser,
+  deleteUser,
+  getAllUser,
+  getUserById,
+  updateUser,
+} from "./userAPI";
 
 const initialState = {
-  value: 0,
+  users: [],
   status: "idle",
 };
 
-export const incrementAsync = createAsyncThunk(
-  "counter/fetchCount",
-  async (amount) => {
-    const response = await fetchCount(amount);
+export const createUserAsync = createAsyncThunk(
+  "user/createUser",
+  async (user) => {
+    const response = await createUser(user);
+    return response.data;
+  }
+);
+
+export const getAllUserAsync = createAsyncThunk("user/getAllUser", async () => {
+  const response = await getAllUser();
+  return response.data;
+});
+
+export const getUserByIdAsync = createAsyncThunk(
+  "user/getUserById",
+  async (_id) => {
+    const response = await getUserById(_id);
+    return response.data;
+  }
+);
+
+export const updateUserAsync = createAsyncThunk(
+  "user/updateUser",
+  async (_id, update) => {
+    const response = await updateUser(_id, update);
+    return response.data;
+  }
+);
+
+export const deleteUserAsync = createAsyncThunk(
+  "user/deleteUser",
+  async (_id) => {
+    const response = await deleteUser(_id);
     return response.data;
   }
 );
 
 export const userSlice = createSlice({
-  name: "counter",
+  name: "user",
   initialState,
   reducers: {
     increment: (state) => {
@@ -25,18 +60,52 @@ export const userSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      .addCase(incrementAsync.pending, (state) => {
+      .addCase(createUserAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(incrementAsync.fulfilled, (state, action) => {
+      .addCase(createUserAsync.fulfilled, (state, action) => {
         state.status = "idle";
-        state.value += action.payload;
+        state.users.push(action.payload);
+      })
+      .addCase(getAllUserAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getAllUserAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.users = action.payload;
+      })
+      .addCase(getUserByIdAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getUserByIdAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.users = action.payload;
+      })
+      .addCase(updateUserAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateUserAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        const index = state.users.findIndex(
+          (user) => user._id === action.payload._id
+        );
+        state.users[index] = action.payload;
+      })
+      .addCase(deleteUserAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteUserAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        const index = state.users.findIndex(
+          (user) => user._id === action.payload._id
+        );
+        state.users[index] = action.payload;
       });
   },
 });
 
 export const { increment } = userSlice.actions;
 
-export const selectCount = (state) => state.counter.value;
+export const selectUser = (state) => state.user.users;
 
 export default userSlice.reducer;
