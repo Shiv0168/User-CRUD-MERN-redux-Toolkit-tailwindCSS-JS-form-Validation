@@ -27,13 +27,16 @@ export function getUserById(_id) {
   });
 }
 
-export function updateUser(_id, update) {
+export function updateUser(update) {
   return new Promise(async (resolve) => {
-    const response = await fetch(`http://localhost:8080/api/user/${_id}`, {
-      method: "PATCH",
-      body: JSON.stringify(update),
-      headers: { "content-type": "application/json" },
-    });
+    const response = await fetch(
+      `http://localhost:8080/api/user/${update._id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(update),
+        headers: { "content-type": "application/json" },
+      }
+    );
     const data = await response.json();
     resolve({ data });
   });
@@ -44,6 +47,6 @@ export function deleteUser(_id) {
     await fetch(`http://localhost:8080/api/user/${_id}`, {
       method: "DELETE",
     });
-    resolve({ message: "deleted" });
+    resolve({ data: { _id: _id } });
   });
 }

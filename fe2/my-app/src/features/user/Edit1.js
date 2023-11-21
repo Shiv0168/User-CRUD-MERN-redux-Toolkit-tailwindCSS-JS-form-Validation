@@ -1,64 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser, updateUserAsync } from "./userSlice";
 
 export default function Edit() {
-  const [people, setPeople] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
-  const [error, setError] = useState({});
   const nav = useNavigate();
   const { _id } = useParams();
+  const dispatch = useDispatch();
+  const [updatedPeople, setUpdatedPeople] = useState();
+  const peoples = useSelector(selectUser);
 
   useEffect(() => {
-    getUserById();
+    if (_id) {
+      const singleUser = peoples.filter((ele) => ele._id === _id);
+      setUpdatedPeople(singleUser[0]);
+    }
   }, []);
 
-  const getUserById = async () => {
-    try {
-      const data = await fetch(`http://localhost:8080/api/user/${_id}`);
-      const response = await data.json();
-      setPeople(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const onChangeEvent = (e) => {
-    setPeople({ ...people, [e.target.name]: e.target.value });
+    setUpdatedPeople({ ...updatedPeople, [e.target.name]: e.target.value });
   };
 
-  const createUser = async (e) => {
+  const updateUser = async (e) => {
     e.preventDefault();
-
-    let errors = {};
-
-    if (!people.username.trim()) {
-      errors.username = "username required !!!";
-    }
-    if (!people.email.trim()) {
-      errors.email = "email required !!!";
-    }
-    if (!people.password.trim()) {
-      errors.password = "password required !!!";
-    }
-
-    setError(errors);
-
-    if (Object.keys(errors).length === 0) {
-      try {
-        await fetch(`http://localhost:8080/api/user/${_id}`, {
-          method: "PUT",
-          body: JSON.stringify(people),
-          headers: { "content-type": "application/json" },
-        });
-        nav("/");
-      } catch (error) {
-        console.log(error);
-      }
-    }
+    dispatch(updateUserAsync(updatedPeople));
+    nav("/");
   };
 
   return (
@@ -66,9 +33,15 @@ export default function Edit() {
       <div className="flex items-center justify-center px-1 py-2 sm:px-2 sm:py-6 lg:px-6 lg:py-10">
         <div className="xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md">
           <h2 className="text-center text-2xl font-bold leading-tight text-black">
-            Update Users Here
+            Add Users Here
           </h2>
-          <form className="mt-8" onSubmit={(e) => createUser(e)}>
+          <form
+            className="mt-8"
+            onSubmit={(e) => {
+              updateUser(e);
+            }}
+            noValidate
+          >
             <div className="space-y-5">
               <div>
                 <label
@@ -83,14 +56,11 @@ export default function Edit() {
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                     type="text"
                     placeholder="username"
+                    value={updatedPeople?.username}
                     id="username"
-                    value={people.username}
                     name="username"
                     onChange={onChangeEvent}
                   ></input>
-                  {error.username && (
-                    <p className="text-red-400 text-sm">{error.username}</p>
-                  )}
                 </div>
               </div>
 
@@ -107,14 +77,11 @@ export default function Edit() {
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                     type="email"
                     placeholder="email"
+                    value={updatedPeople?.email}
                     id="email"
                     name="email"
-                    value={people.email}
                     onChange={onChangeEvent}
                   ></input>
-                  {error.email && (
-                    <p className="text-red-400 text-sm">{error.email}</p>
-                  )}
                 </div>
               </div>
 
@@ -133,14 +100,11 @@ export default function Edit() {
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
                     type="password"
                     placeholder="Password"
+                    value={updatedPeople?.password}
                     id="password"
                     name="password"
-                    value={people.password}
                     onChange={onChangeEvent}
                   ></input>
-                  {error.password && (
-                    <p className="text-red-400 text-sm">{error.password}</p>
-                  )}
                 </div>
               </div>
               <div>

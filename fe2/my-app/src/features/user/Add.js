@@ -28,6 +28,7 @@ export default function Add() {
               dispatch(createUserAsync(data));
               nav("/");
             })}
+            noValidate
           >
             <div className="space-y-5">
               <div>

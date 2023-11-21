@@ -1,37 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllUserAsync, selectUser } from "./userSlice";
+import { deleteUserAsync, getAllUserAsync, selectUser } from "./userSlice";
 
 export default function Home() {
-  // const [people, setPeople] = useState([]);
   const dispatch = useDispatch();
   const users = useSelector(selectUser);
+  const nav = useNavigate();
 
   useEffect(() => {
     dispatch(getAllUserAsync());
-    // getAllPeople();
   }, []);
 
-  // const getAllPeople = async () => {
-  //   try {
-  //     const data = await fetch("http://localhost:8080/api/user");
-  //     const response = await data.json();
-  //     setPeople(response);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   const handleDeleteUser = async (_id) => {
-    try {
-      await fetch(`http://localhost:8080/api/user/${_id}`, {
-        method: "DELETE",
-      });
-      getAllPeople();
-    } catch (error) {
-      console.log(error);
-    }
+    dispatch(deleteUserAsync(_id));
+    nav("/");
   };
 
   return (
@@ -98,48 +81,50 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {users.map((person) => (
-                      <tr key={person._id}>
-                        <td className="whitespace-nowrap px-4 py-4">
-                          <div className="flex items-center">
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {person.username}
+                    {users &&
+                      users.map((person, index) => (
+                        <tr key={person._id}>
+                          <td className="whitespace-nowrap px-4 py-4">
+                            <div className="flex items-center">
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {person.username}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-12 py-4">
-                          <div className="text-sm text-gray-900 ">
-                            {person.email}
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-4 py-4">
-                          <div className="text-sm text-gray-700">
-                            {person.password}
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-700">
-                          {person._id}
-                        </td>
-                        <td className="whitespace-nowrap px-4 py-4 text-right text-sm font-medium">
-                          <Link
-                            to={`/edit/${person._id}`}
-                            className="-ms-5 me-3"
-                          >
-                            <button className="bg-blue-400 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
-                              Edit
+                          </td>
+                          <td className="whitespace-nowrap px-12 py-4">
+                            <div className="text-sm text-gray-900 ">
+                              {person.email}
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-4">
+                            <div className="text-sm text-gray-700">
+                              {person.password}
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-700">
+                            {/* {person._id} */}
+                            {index + 1}
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-4 text-right text-sm font-medium">
+                            <Link
+                              to={`/edit/${person._id}`}
+                              className="-ms-5 me-3"
+                            >
+                              <button className="bg-blue-400 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
+                                Edit
+                              </button>
+                            </Link>
+                            <button
+                              onClick={() => handleDeleteUser(person._id)}
+                              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full"
+                            >
+                              Delete
                             </button>
-                          </Link>
-                          <button
-                            onClick={() => handleDeleteUser(person._id)}
-                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>

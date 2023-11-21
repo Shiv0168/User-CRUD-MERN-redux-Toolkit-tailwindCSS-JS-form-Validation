@@ -10,6 +10,7 @@ import {
 const initialState = {
   users: [],
   status: "idle",
+  userById: null,
 };
 
 export const createUserAsync = createAsyncThunk(
@@ -35,8 +36,10 @@ export const getUserByIdAsync = createAsyncThunk(
 
 export const updateUserAsync = createAsyncThunk(
   "user/updateUser",
-  async (_id, update) => {
-    const response = await updateUser(_id, update);
+  async (update) => {
+    console.log(update);
+    const response = await updateUser(update);
+    console.log(response);
     return response.data;
   }
 );
@@ -79,7 +82,7 @@ export const userSlice = createSlice({
       })
       .addCase(getUserByIdAsync.fulfilled, (state, action) => {
         state.status = "idle";
-        state.users = action.payload;
+        state.userById = action.payload;
       })
       .addCase(updateUserAsync.pending, (state) => {
         state.status = "loading";
@@ -99,7 +102,7 @@ export const userSlice = createSlice({
         const index = state.users.findIndex(
           (user) => user._id === action.payload._id
         );
-        state.users[index] = action.payload;
+        state.users.splice(index, 1);
       });
   },
 });
@@ -107,5 +110,6 @@ export const userSlice = createSlice({
 export const { increment } = userSlice.actions;
 
 export const selectUser = (state) => state.user.users;
+export const selectUserById = (state) => state.user.userById;
 
 export default userSlice.reducer;
